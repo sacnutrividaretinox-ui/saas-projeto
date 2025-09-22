@@ -1,7 +1,7 @@
 // Conectar e mostrar QR Code na tela
 async function connectWhatsapp() {
   try {
-    const res = await fetch("/qr");
+    const res = await fetch("/api/qr");   // ✅ corrigido
     const data = await res.json();
 
     if (data.qrCode) {
@@ -24,7 +24,7 @@ async function sendMessage() {
   const phone = document.getElementById("phone").value;
   const message = document.getElementById("message").value;
 
-  const res = await fetch("/send-message", {
+  const res = await fetch("/api/send-message", {   // ✅ corrigido
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phone, message })
