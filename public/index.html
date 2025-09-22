@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Micro SaaS WhatsApp</title>
-  <!-- CSS separado -->
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -15,7 +14,7 @@
       <a href="#send-message">💬 Mensagem</a>
       <a href="#preview">👀 Prévia</a>
       <a href="#response">📊 Resposta</a>
-      <a href="#" id="connect-btn" onclick="connectWhatsapp()">🔗 Conectar WhatsApp</a>
+      <a href="#qrcode" id="connect-btn" onclick="connectWhatsapp()">🔗 Conectar WhatsApp</a>
     </nav>
   </div>
 
@@ -42,9 +41,13 @@
       <h2>Resposta do Servidor</h2>
       <pre id="serverResponse"></pre>
     </div>
+
+    <div class="card" id="qrcode">
+      <h2>Conectar WhatsApp</h2>
+      <div id="qrContainer">Clique em "Conectar WhatsApp" no menu para gerar o QR</div>
+    </div>
   </div>
 
-  <!-- JS separado -->
   <script src="/app.js"></script>
 </body>
 </html>
