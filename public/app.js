@@ -1,7 +1,7 @@
 // Conectar e mostrar QR Code na tela
 async function connectWhatsapp() {
   try {
-    const res = await fetch("/api/qr");   // ✅ corrigido
+    const res = await fetch("/api/qr"); // <-- corrigido
     const data = await res.json();
 
     if (data.qrCode) {
@@ -24,7 +24,7 @@ async function sendMessage() {
   const phone = document.getElementById("phone").value;
   const message = document.getElementById("message").value;
 
-  const res = await fetch("/api/send-message", {   // ✅ corrigido
+  const res = await fetch("/api/send-message", { // <-- corrigido
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phone, message })
@@ -34,19 +34,3 @@ async function sendMessage() {
   document.getElementById("serverResponse").textContent =
     JSON.stringify(data, null, 2);
 }
-
-// Atualizar prévia da mensagem
-document.getElementById("message").addEventListener("input", (e) => {
-  document.getElementById("previewText").textContent = e.target.value;
-});
-
-// Upload CSV
-document.getElementById("fileInput").addEventListener("change", (event) => {
-  const file = event.target.files[0];
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const text = e.target.result;
-    document.getElementById("csvOutput").textContent = text;
-  };
-  reader.readAsText(file);
-});
