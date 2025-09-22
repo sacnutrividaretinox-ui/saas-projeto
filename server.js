@@ -6,23 +6,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🔑 Credenciais da Z-API (variáveis de ambiente)
+// 🔑 Credenciais fixas da Z-API
 const ZAPI = {
-  instanceId: process.env.ZAPI_INSTANCE_ID || "SEM_INSTANCE",
-  token: process.env.ZAPI_TOKEN || "SEM_TOKEN",
-  clientToken: process.env.ZAPI_CLIENT_TOKEN || "SEM_CLIENT",
+  instanceId: "36EDD0DDEED00C0FD52197AEA2D17DA62",
+  token: "0BF08CF5075ECC6C5937E55C",
+  clientToken: "9E09CAB81F22425F5954C6C2",
   baseUrl() {
     return `https://api.z-api.io/instances/${this.instanceId}/token/${this.token}`;
   }
 };
-
-// ============================
-// Debug inicial
-// ============================
-console.log("🚀 Variáveis de ambiente carregadas:");
-console.log("ZAPI_INSTANCE_ID:", ZAPI.instanceId ? ZAPI.instanceId.slice(0, 4) + "..." + ZAPI.instanceId.slice(-4) : "NÃO DEFINIDO");
-console.log("ZAPI_TOKEN:", ZAPI.token ? ZAPI.token.slice(0, 4) + "..." + ZAPI.token.slice(-4) : "NÃO DEFINIDO");
-console.log("ZAPI_CLIENT_TOKEN:", ZAPI.clientToken ? ZAPI.clientToken.slice(0, 4) + "..." + ZAPI.clientToken.slice(-4) : "NÃO DEFINIDO");
 
 // ============================
 // Rota de teste
@@ -36,41 +28,24 @@ app.get("/", (req, res) => {
 // ============================
 app.get("/qr", async (req, res) => {
   try {
-    const url = `${ZAPI.baseUrl()}/qr-code/image`;
-    console.log("🔗 Chamando:", url);
-
-    const response = await axios.get(url, {
+    const response = await axios.get(`${ZAPI.baseUrl()}/qr-code/image`, {
       headers: { "Client-Token": ZAPI.clientToken },
       timeout: 10000
     });
 
-    res.json(response.data);
+    if (response.data?.value) {
+      res.json({ qrCode: response.data.value });
+    } else {
+      res.status(500).json({
+        error: "QR Code não retornado pela Z-API",
+        raw: response.data
+      });
+    }
   } catch (err) {
-    console.error("❌ Erro ao gerar QR Code:", err.response?.data || err.message);
+    console.error("Erro na rota /qr:", err.response?.data || err.message);
     res.status(500).json({
       error: "Erro ao gerar QR Code",
       details: err.response?.data || err.message
-    });
-  }
-});
-
-// ============================
-// Rota Status
-// ============================
-app.get("/status", async (req, res) => {
-  try {
-    const response = await axios.get(ZAPI.baseUrl(), {
-      headers: { "Client-Token": ZAPI.clientToken },
-      timeout: 5000
-    });
-
-    res.json(response.data);
-  } catch (err) {
-    console.error("❌ Erro no /status:", err.response?.data || err.message);
-    res.status(500).json({
-      status: "ERROR",
-      error: err.message,
-      details: err.response?.data
     });
   }
 });
@@ -80,5 +55,5 @@ app.get("/status", async (req, res) => {
 // ============================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ Servidor rodando na porta ${PORT}`);
+  console.log(`🚀 Micro SaaS rodando na porta ${PORT}`);
 });
