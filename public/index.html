@@ -1,53 +1,148 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Micro SaaS WhatsApp</title>
-  <link rel="stylesheet" href="/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WhatsApp SaaS</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Estilo básico (pode ficar em styles.css) */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      background: #0f172a;
+      color: #f1f5f9;
+    }
+    aside {
+      width: 220px;
+      background: #1e293b;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    aside h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #38bdf8;
+    }
+    aside nav a {
+      display: block;
+      padding: 10px;
+      color: #f1f5f9;
+      text-decoration: none;
+      margin: 5px 0;
+      border-radius: 6px;
+    }
+    aside nav a:hover {
+      background: #334155;
+    }
+    main {
+      flex: 1;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    section {
+      background: #1e293b;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+    h3 {
+      margin-top: 0;
+      color: #38bdf8;
+    }
+    input, textarea, button, select {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0;
+      border: none;
+      border-radius: 6px;
+      outline: none;
+    }
+    input, textarea, select {
+      background: #0f172a;
+      color: #f1f5f9;
+    }
+    button {
+      background: #38bdf8;
+      color: #0f172a;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0ea5e9;
+    }
+    pre {
+      background: #0f172a;
+      padding: 10px;
+      border-radius: 6px;
+      overflow-x: auto;
+      color: #22d3ee;
+    }
+    #qrContainer img {
+      margin-top: 10px;
+      border: 4px solid #38bdf8;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
-  <div class="sidebar">
-    <h1>📲 WhatsApp SaaS</h1>
+  <aside>
+    <h2>📱 WhatsApp SaaS</h2>
     <nav>
-      <a href="#contacts">👥 Contatos</a>
-      <a href="#send-message">💬 Mensagem</a>
-      <a href="#preview">👀 Prévia</a>
-      <a href="#response">📊 Resposta</a>
-      <a href="#qrcode" id="connect-btn" onclick="connectWhatsapp()">🔗 Conectar WhatsApp</a>
+      <a href="#contatos">👥 Contatos</a>
+      <a href="#mensagem">💬 Mensagem</a>
+      <a href="#previa">👀 Prévia</a>
+      <a href="#resposta">📊 Resposta</a>
+      <a href="#qrcode">🔗 Conectar WhatsApp</a>
     </nav>
-  </div>
+  </aside>
 
-  <div class="main">
-    <div class="card" id="contacts">
-      <h2>Upload de Contatos (CSV)</h2>
-      <input type="file" id="fileInput" accept=".csv" />
+  <main>
+    <!-- Contatos -->
+    <section id="contatos">
+      <h3>👥 Contatos</h3>
+      <input type="text" id="nome" placeholder="Nome ex: João Silva" />
+      <input type="text" id="phone" placeholder="Telefone ex: 11999999999" />
+      <button onclick="addContact()">Adicionar Contato</button>
+      
+      <h4>Upload CSV</h4>
+      <input type="file" id="fileInput" />
+      <button>Importar CSV</button>
       <pre id="csvOutput"></pre>
-    </div>
+    </section>
 
-    <div class="card" id="send-message">
-      <h2>Enviar Mensagem</h2>
-      <input type="text" id="phone" placeholder="Número de telefone (com DDD)" />
-      <textarea id="message" placeholder="Digite sua mensagem"></textarea>
+    <!-- Mensagem -->
+    <section id="mensagem">
+      <h3>💬 Enviar Mensagem</h3>
+      <textarea id="message" rows="4" placeholder="Digite sua mensagem..."></textarea>
       <button onclick="sendMessage()">Enviar</button>
-    </div>
+    </section>
 
-    <div class="card" id="preview">
-      <h2>Prévia da Mensagem</h2>
-      <p id="previewText">Sua mensagem aparecerá aqui.</p>
-    </div>
+    <!-- Prévia -->
+    <section id="previa">
+      <h3>👀 Prévia da Mensagem</h3>
+      <p id="previewText">Sua mensagem aparecerá aqui...</p>
+    </section>
 
-    <div class="card" id="response">
-      <h2>Resposta do Servidor</h2>
-      <pre id="serverResponse"></pre>
-    </div>
+    <!-- Resposta -->
+    <section id="resposta">
+      <h3>📊 Resposta da API</h3>
+      <pre id="serverResponse">{}</pre>
+    </section>
 
-    <div class="card" id="qrcode">
-      <h2>Conectar WhatsApp</h2>
-      <div id="qrContainer">Clique em "Conectar WhatsApp" no menu para gerar o QR</div>
-    </div>
-  </div>
+    <!-- QR Code -->
+    <section id="qrcode">
+      <h3>🔗 Conectar WhatsApp</h3>
+      <div id="qrContainer">
+        <p>Aguardando geração do QR Code...</p>
+      </div>
+      <button onclick="connectWhatsapp()">Gerar QR Code</button>
+    </section>
+  </main>
 
-  <script src="/app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
