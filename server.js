@@ -1,20 +1,29 @@
+// ============================
+// Rota QR Code (debug nos dois endpoints)
+// ============================
 app.get("/qr", async (req, res) => {
   try {
-    const response = await axios.get(`${ZAPI.baseUrl()}/qr-code/image`, {
+    const resp1 = await axios.get(`${ZAPI.baseUrl()}/qr-code/image`, {
       headers: { "Client-Token": ZAPI.clientToken },
       timeout: 5000
+    }).catch(err => ({ error: err.response?.data || err.message }));
+
+    const resp2 = await axios.get(`${ZAPI.baseUrl()}/qr-code`, {
+      headers: { "Client-Token": ZAPI.clientToken },
+      timeout: 5000
+    }).catch(err => ({ error: err.response?.data || err.message }));
+
+    console.log("Resposta /qr-code/image:", resp1.data || resp1.error);
+    console.log("Resposta /qr-code:", resp2.data || resp2.error);
+
+    res.json({
+      endpoint_image: resp1.data || resp1.error,
+      endpoint_normal: resp2.data || resp2.error
     });
-
-    console.log("Resposta Z-API /qr-code/image:", response.data);
-
-    // Retorna tudo que a Z-API mandou
-    res.json({ raw: response.data });
   } catch (err) {
-    console.error("Erro na rota /qr:", err.response?.data || err.message);
-
     res.status(500).json({
-      error: "Erro ao gerar QR Code",
-      details: err.response?.data || err.message
+      error: "Falha geral na rota /qr",
+      details: err.message
     });
   }
 });
