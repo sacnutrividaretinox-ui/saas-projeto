@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Micro SaaS WhatsApp</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
-  <style>
-    /* ... (mantive todos os estilos iguais ao seu) ... */
-  </style>
+  <!-- CSS separado -->
+  <link rel="stylesheet" href="/styles.css" />
 </head>
-
 <body>
   <div class="sidebar">
     <h1>📲 WhatsApp SaaS</h1>
@@ -23,120 +20,31 @@
   </div>
 
   <div class="main">
-    <div id="qr-modal" class="modal show">
-      <div style="background:#fff; padding:20px; border-radius:12px; text-align:center; max-width:320px; width:90%;">
-        <button onclick="closeQRModal()" style="position:absolute; top:10px; right:10px; border:none; background:none; font-size:18px; cursor:pointer;">✖️</button>
-        <div id="qr-content">
-          <h2>Escaneie o QR Code</h2>
-          <img id="qr-img" src="" style="max-width:300px;" />
-          <button onclick="showPhoneModal()">Conectar com código</button>
-        </div>
+    <div class="card" id="contacts">
+      <h2>Upload de Contatos (CSV)</h2>
+      <input type="file" id="fileInput" accept=".csv" />
+      <pre id="csvOutput"></pre>
+    </div>
 
-        <div id="phone-content" style="display:none; text-align:center; position:relative;">
-          <button onclick="closePhoneModal()" style="position:absolute; top:10px; right:10px; font-size:18px;">✖</button>
-          <h2>Conectar com WhatsApp via código</h2>
+    <div class="card" id="send-message">
+      <h2>Enviar Mensagem</h2>
+      <input type="text" id="phone" placeholder="Número de telefone (com DDD)" />
+      <textarea id="message" placeholder="Digite sua mensagem"></textarea>
+      <button onclick="sendMessage()">Enviar</button>
+    </div>
 
-          <div id="phone-step" style="margin-top:12px;">
-            <label>Código do país:</label>
-            <input type="text" id="phone-country" placeholder="+55" value="+55" style="width:80px; padding:6px;" />
-            <label>Número do telefone:</label>
-            <input type="text" id="phone-number" placeholder="11999999999" style="width:150px; padding:6px;" />
-            <button onclick="generatePhoneCode()" style="margin-top:12px;">Avançar</button>
-          </div>
+    <div class="card" id="preview">
+      <h2>Prévia da Mensagem</h2>
+      <p id="previewText">Sua mensagem aparecerá aqui.</p>
+    </div>
 
-          <div id="phone-code-area" style="display:none; margin-top:20px;">
-            <p>Use o código abaixo diretamente no WhatsApp:</p>
-            <div id="phone-code-display" style="margin:20px 0; padding:12px; background:#eee; border-radius:8px; font-weight:700; color:#000;">Carregando...</div>
-            <button onclick="refreshPhoneCode()" style="margin-top:12px;">Gerar novo código</button>
-          </div>
-        </div>
-      </div>
+    <div class="card" id="response">
+      <h2>Resposta do Servidor</h2>
+      <pre id="serverResponse"></pre>
     </div>
   </div>
 
-  <!-- Conteúdo omitido das cards (Contatos, Configurações, Mensagem, etc.) -->
-
-  <script>
-    function closeQRModal() {
-      document.getElementById("qr-modal").classList.remove("show");
-    }
-
-    function openQRModal() {
-      document.getElementById("qr-modal").classList.add("show");
-    }
-
-    function showPhoneModal() {
-      document.getElementById("phone-content").style.display = "block";
-      document.getElementById("phone-step").style.display = "block";
-      document.getElementById("phone-code-area").style.display = "none";
-    }
-
-    function closePhoneModal() {
-      document.getElementById("phone-content").style.display = "none";
-    }
-
-    async function generatePhoneCode() {
-      let country = document.getElementById("phone-country").value.trim() || "55";
-      let number = document.getElementById("phone-number").value.trim();
-      if (!number) return alert("Informe o número de telefone.");
-
-      country = country.replace("+", "");
-      const fullNumber = `${country}${number}`;
-
-      try {
-        const res = await fetch(`/phone-code/${fullNumber}`);
-        const data = await res.json();
-
-        if (data.code) {
-          document.getElementById("phone-step").style.display = "none";
-          document.getElementById("phone-code-area").style.display = "block";
-          document.getElementById("phone-code-display").textContent = data.code;
-        } else {
-          alert("Erro ao gerar código.");
-        }
-      } catch (err) {
-        console.error(err);
-        alert("Erro ao gerar código.");
-      }
-    }
-
-    async function refreshPhoneCode() {
-      generatePhoneCode();
-    }
-
-    let qrInterval;
-    async function connectWhatsapp() {
-      const btn = event.target;
-      const qrModal = document.getElementById("qr-modal");
-      const qrImg = document.getElementById("qr-img");
-
-      qrModal.style.display = "flex";
-
-      async function refreshQR() {
-        try {
-          const res = await fetch("/qr");
-          const data = await res.json();
-
-          if (data.raw?.connected) {
-            clearInterval(qrInterval);
-            qrModal.style.display = "none";
-            btn.textContent = "✅ WhatsApp conectado";
-            alert("WhatsApp conectado com sucesso!");
-            return;
-          }
-
-          if (data.qrCode) {
-            qrImg.src = data.qrCode;
-          }
-
-        } catch (err) {
-          console.error("Erro ao buscar QR:", err);
-        }
-      }
-
-      await refreshQR();
-      qrInterval = setInterval(refreshQR, 15000);
-    }
-  </script>
+  <!-- JS separado -->
+  <script src="/app.js"></script>
 </body>
 </html>
