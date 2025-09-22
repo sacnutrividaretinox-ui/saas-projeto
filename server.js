@@ -6,21 +6,26 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🔑 Credenciais da Z-API (pegas das variáveis de ambiente do Railway)
+// 🔑 Credenciais da Z-API (variáveis de ambiente)
 const ZAPI = {
-  instanceId: process.env.ZAPI_INSTANCE_ID,
-  token: process.env.ZAPI_TOKEN,
-  clientToken: process.env.ZAPI_CLIENT_TOKEN,
+  instanceId: process.env.ZAPI_INSTANCE_ID || "SEM_INSTANCE",
+  token: process.env.ZAPI_TOKEN || "SEM_TOKEN",
+  clientToken: process.env.ZAPI_CLIENT_TOKEN || "SEM_CLIENT",
   baseUrl() {
     return `https://api.z-api.io/instances/${this.instanceId}/token/${this.token}`;
-  },
-  headers() {
-    return { "Client-Token": this.clientToken };
   }
 };
 
 // ============================
-// Rota inicial
+// Debug inicial
+// ============================
+console.log("🚀 Variáveis de ambiente carregadas:");
+console.log("ZAPI_INSTANCE_ID:", ZAPI.instanceId ? ZAPI.instanceId.slice(0, 4) + "..." + ZAPI.instanceId.slice(-4) : "NÃO DEFINIDO");
+console.log("ZAPI_TOKEN:", ZAPI.token ? ZAPI.token.slice(0, 4) + "..." + ZAPI.token.slice(-4) : "NÃO DEFINIDO");
+console.log("ZAPI_CLIENT_TOKEN:", ZAPI.clientToken ? ZAPI.clientToken.slice(0, 4) + "..." + ZAPI.clientToken.slice(-4) : "NÃO DEFINIDO");
+
+// ============================
+// Rota de teste
 // ============================
 app.get("/", (req, res) => {
   res.json({ status: "ok", message: "Micro SaaS rodando 🚀" });
@@ -31,21 +36,17 @@ app.get("/", (req, res) => {
 // ============================
 app.get("/qr", async (req, res) => {
   try {
-    const response = await axios.get(`${ZAPI.baseUrl()}/qr-code/image`, {
-      headers: ZAPI.headers(),
+    const url = `${ZAPI.baseUrl()}/qr-code/image`;
+    console.log("🔗 Chamando:", url);
+
+    const response = await axios.get(url, {
+      headers: { "Client-Token": ZAPI.clientToken },
       timeout: 10000
     });
 
-    if (response.data?.value) {
-      res.json({ qrCode: response.data.value });
-    } else {
-      res.status(500).json({
-        error: "QR Code não retornado pela Z-API",
-        raw: response.data
-      });
-    }
+    res.json(response.data);
   } catch (err) {
-    console.error("Erro na rota /qr:", err.response?.data || err.message);
+    console.error("❌ Erro ao gerar QR Code:", err.response?.data || err.message);
     res.status(500).json({
       error: "Erro ao gerar QR Code",
       details: err.response?.data || err.message
@@ -59,59 +60,17 @@ app.get("/qr", async (req, res) => {
 app.get("/status", async (req, res) => {
   try {
     const response = await axios.get(ZAPI.baseUrl(), {
-      headers: ZAPI.headers(),
+      headers: { "Client-Token": ZAPI.clientToken },
       timeout: 5000
-    });
-
-    const status = response.data?.status || "UNKNOWN";
-    const connected = response.data?.connected || false;
-
-    res.json({
-      status,
-      connected,
-      message:
-        connected
-          ? "WhatsApp conectado"
-          : status === "QRCODE"
-          ? "Aguardando QR Code"
-          : "Desconectado"
-    });
-  } catch (err) {
-    console.error("[STATUS ERROR]", err.message, err.response?.data);
-    res.status(500).json({
-      status: "ERROR",
-      message: "Erro ao conectar na API do WhatsApp",
-      error: err.message,
-      details: err.response?.data
-    });
-  }
-});
-
-// ============================
-// Rota enviar mensagem
-// ============================
-app.post("/send-message", async (req, res) => {
-  try {
-    const { phone, message, title, footer, buttonActions } = req.body;
-
-    let url = `${ZAPI.baseUrl()}/send-text`;
-    let payload = { phone, message };
-
-    if (buttonActions && buttonActions.length > 0) {
-      url = `${ZAPI.baseUrl()}/send-button-actions`;
-      payload = { phone, message, title, footer, buttonActions };
-    }
-
-    const response = await axios.post(url, payload, {
-      headers: ZAPI.headers()
     });
 
     res.json(response.data);
   } catch (err) {
-    console.error("Erro na rota /send-message:", err.response?.data || err.message);
+    console.error("❌ Erro no /status:", err.response?.data || err.message);
     res.status(500).json({
+      status: "ERROR",
       error: err.message,
-      details: err.response?.data || null
+      details: err.response?.data
     });
   }
 });
@@ -121,5 +80,5 @@ app.post("/send-message", async (req, res) => {
 // ============================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Micro SaaS rodando na porta ${PORT}`);
+  console.log(`✅ Servidor rodando na porta ${PORT}`);
 });
