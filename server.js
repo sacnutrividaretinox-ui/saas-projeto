@@ -6,11 +6,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🔑 Credenciais fixas da Z-API
+// 🔑 Credenciais da Z-API (pegas das variáveis de ambiente)
 const ZAPI = {
-  instanceId: "36EDD0DDEED00C0FD52197AEA2D17DA62",
-  token: "0BF08CF5075ECC6C5937E55C",
-  clientToken: "9E09CAB81F22425F5954C6C2",
+  instanceId: process.env.ZAPI_INSTANCE_ID || "SEU_INSTANCE_ID",
+  token: process.env.ZAPI_TOKEN || "SEU_TOKEN",
+  clientToken: process.env.ZAPI_CLIENT_TOKEN || "SEU_CLIENT_TOKEN",
   baseUrl() {
     return `https://api.z-api.io/instances/${this.instanceId}/token/${this.token}`;
   }
@@ -20,7 +20,7 @@ const ZAPI = {
 // Rota de teste
 // ============================
 app.get("/", (req, res) => {
-  res.json({ status: "ok", message: "Micro SaaS rodando 🚀" });
+  res.json({ status: "ok" });
 });
 
 // ============================
@@ -30,7 +30,7 @@ app.get("/qr", async (req, res) => {
   try {
     const response = await axios.get(`${ZAPI.baseUrl()}/qr-code/image`, {
       headers: { "Client-Token": ZAPI.clientToken },
-      timeout: 10000
+      timeout: 5000
     });
 
     if (response.data?.value) {
@@ -46,6 +46,133 @@ app.get("/qr", async (req, res) => {
     res.status(500).json({
       error: "Erro ao gerar QR Code",
       details: err.response?.data || err.message
+    });
+  }
+});
+
+// ============================
+// Rota Status
+// ============================
+app.get("/status", async (req, res) => {
+  try {
+    const response = await axios.get(ZAPI.baseUrl(), {
+      headers: { "Client-Token": ZAPI.clientToken },
+      timeout: 5000
+    });
+
+    const status = response.data?.status || "UNKNOWN";
+    const connected = response.data?.connected || false;
+
+    res.json({
+      status,
+      connected,
+      message:
+        connected
+          ? "WhatsApp conectado"
+          : status === "QRCODE"
+            ? "Aguardando QR Code"
+            : "Desconectado"
+    });
+  } catch (err) {
+    console.error("[STATUS ERROR]", err.message, err.response?.data);
+    res.status(500).json({
+      status: "ERROR",
+      message: "Erro ao conectar na API do WhatsApp",
+      error: err.message,
+      details: err.response?.data
+    });
+  }
+});
+
+// ============================
+// Rota Phone Code (gerar)
+// ============================
+app.get("/phone-code/:phone", async (req, res) => {
+  let phone = req.params.phone.trim();
+
+  if (phone.startsWith("+")) phone = phone.slice(1);
+  if (!phone.match(/^\d+$/)) {
+    return res.status(400).json({ error: "Número de telefone inválido" });
+  }
+
+  try {
+    const response = await axios.get(
+      `${ZAPI.baseUrl()}/phone-code/${phone}`,
+      {
+        headers: { "Client-Token": ZAPI.clientToken },
+        timeout: 15000
+      }
+    );
+
+    const code = response.data?.value || response.data?.code || null;
+
+    if (!code) {
+      return res.status(500).json({
+        error: "Código não retornado pela Z-API",
+        raw: response.data
+      });
+    }
+
+    res.json({ code });
+  } catch (err) {
+    console.error("Erro ao gerar Phone Code:", err.response?.data || err.message);
+    res.status(err.response?.status || 500).json({
+      error: "Erro ao gerar código",
+      details: err.response?.data || err.message
+    });
+  }
+});
+
+// ============================
+// Rota Phone Code (validar/conectar)
+// ============================
+app.post("/validate-phone-code", async (req, res) => {
+  const { code } = req.body;
+
+  if (!code) return res.status(400).json({ error: "Código é obrigatório" });
+
+  try {
+    const response = await axios.post(
+      `${ZAPI.baseUrl()}/connect-phone`,
+      { code },
+      { headers: { "Client-Token": ZAPI.clientToken } }
+    );
+
+    res.json(response.data);
+  } catch (err) {
+    console.error("Erro na rota /validate-phone-code:", err.response?.data || err.message);
+    res.status(500).json({
+      error: err.message,
+      details: err.response?.data || null
+    });
+  }
+});
+
+// ============================
+// Rota enviar mensagem
+// ============================
+app.post("/send-message", async (req, res) => {
+  try {
+    const { phone, message, title, footer, buttonActions } = req.body;
+
+    let url = `${ZAPI.baseUrl()}/send-text`;
+    let payload = { phone, message };
+
+    if (buttonActions && buttonActions.length > 0) {
+      url = `${ZAPI.baseUrl()}/send-button-actions`;
+      payload = { phone, message, title, footer, buttonActions };
+    }
+
+    const response = await axios.post(url, payload, {
+      headers: { "Client-Token": ZAPI.clientToken }
+    });
+
+    res.json(response.data);
+  } catch (err) {
+    console.error("Erro na rota /send-message:", err.response?.data || err.message);
+    res.status(500).json({
+      error: err.message,
+      details: err.response?.data || null
     });
   }
 });
