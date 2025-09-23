@@ -1,50 +1,57 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Teste QR Code</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WhatsApp – QR Code</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0b1220;
-      color: #e5f2ff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
+    :root {
+      --bg:#0b1220; --text:#e5f2ff; --primary:#38bdf8; --primary-2:#6366f1;
     }
-    #qrImage {
-      display: none;
-      margin-top: 20px;
-      border: 6px solid #38bdf8;
-      border-radius: 16px;
-      background: #fff;
-      max-width: 320px;
-      width: 100%;
-      height: auto;
-      box-shadow: 0 4px 16px rgba(0,0,0,.4);
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      font-family:Arial, Helvetica, sans-serif; background:#0b1220; color:var(--text);
+      padding:24px;
     }
-    button {
-      padding: 10px 20px;
-      background: linear-gradient(90deg, #38bdf8, #6366f1);
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
+    h1{margin:0 0 16px}
+    .actions{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+    button{
+      padding:10px 18px; border:none; border-radius:10px; cursor:pointer; font-weight:700;
+      color:#fff; background:linear-gradient(90deg,var(--primary),var(--primary-2));
     }
-    button:hover { filter: brightness(1.1); }
-    #qrStatus { margin-top: 15px; }
+    button:hover{filter:brightness(1.06)}
+    #qrStatus{margin-top:14px}
+    #qrImage{
+      display:none; margin-top:16px; background:#fff;
+      border:6px solid var(--primary); border-radius:16px;
+      max-width:320px; width:100%; height:auto; box-shadow:0 8px 24px rgba(0,0,0,.35);
+    }
+    .wrap{max-width:560px; width:100%; text-align:center}
+    .note{opacity:.8; font-size:13px; margin-top:16px}
   </style>
 </head>
 <body>
-  <h1>Teste de QR Code</h1>
-  <button id="generateQrBtn">Gerar QR Code</button>
-  <div id="qrStatus">Aguardando ação...</div>
-  <img id="qrImage" alt="QR Code" />
+  <div class="wrap">
+    <h1>Conectar WhatsApp</h1>
+
+    <div class="actions">
+      <button id="generateQrBtn">Gerar QR Code</button>
+      <!-- Se quiser reativar depois:
+      <button id="disconnectBtn" style="background:#ef4444">Desconectar</button>
+      <button id="restartBtn">Reiniciar</button>
+      -->
+    </div>
+
+    <div id="qrStatus">Aguardando ação…</div>
+    <img id="qrImage" alt="QR Code" />
+
+    <div class="note">
+      Dica: abra o WhatsApp &rarr; Menu &rarr; Aparelhos conectados &rarr; Conectar um aparelho.
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>

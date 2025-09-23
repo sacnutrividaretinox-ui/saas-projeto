@@ -1,3 +1,4 @@
+// Gerar QR Code
 document.getElementById("generateQrBtn")?.addEventListener("click", async () => {
   const qrImage = document.getElementById("qrImage");
   const qrStatus = document.getElementById("qrStatus");
@@ -5,7 +6,6 @@ document.getElementById("generateQrBtn")?.addEventListener("click", async () => 
   qrStatus.innerText = "Gerando QR Code...";
   qrStatus.style.color = "#00bcd4";
   qrImage.style.display = "none";
-  qrImage.removeAttribute("src");
 
   try {
     const res = await fetch("/api/qr");
@@ -18,18 +18,11 @@ document.getElementById("generateQrBtn")?.addEventListener("click", async () => 
     }
 
     if (data.qrCode) {
-      // Decide se é URL ou base64 cru
-      if (data.qrCode.startsWith("http")) {
-        qrImage.src = data.qrCode;
-      } else {
-        qrImage.src = `data:image/png;base64,${data.qrCode}`;
-      }
-
+      // ✅ Monta o base64 como PNG
+      qrImage.src = `data:image/png;base64,${data.qrCode}`;
       qrImage.style.display = "block";
-      qrStatus.innerText = "QR Code carregado!";
+      qrStatus.innerText = "QR Code gerado com sucesso!";
       qrStatus.style.color = "limegreen";
-
-      console.log("✅ QR aplicado no src:", qrImage.src.substring(0, 100) + "...");
     } else {
       qrStatus.innerText = "QR Code não retornado pela API.";
       qrStatus.style.color = "red";

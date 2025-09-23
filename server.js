@@ -23,7 +23,7 @@ const ZAPI = {
 };
 
 // ============================
-// 🚀 Servir Front-End (pasta public)
+// 🚀 Servir Front-End
 // ============================
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -32,7 +32,7 @@ app.get("/", (req, res) => {
 });
 
 // ============================
-// ✅ Rotas da API
+// ✅ Rotas
 // ============================
 
 // Status
@@ -40,7 +40,7 @@ app.get("/api/status", (req, res) => {
   res.json({ status: "ok", message: "Micro SaaS rodando 🚀" });
 });
 
-// QR Code
+// QR Code (versão simples)
 app.get("/api/qr", async (req, res) => {
   try {
     const response = await axios.get(`${ZAPI.baseUrl()}/qr-code/image`, {
@@ -48,14 +48,9 @@ app.get("/api/qr", async (req, res) => {
       timeout: 10000
     });
 
-    console.log("🔍 Resposta Z-API:", response.data);
-
     if (response.data?.value) {
-      // Base64 cru
+      // ✅ Aqui só devolvemos o base64 cru
       res.json({ qrCode: response.data.value });
-    } else if (response.data?.url) {
-      // URL pronta
-      res.json({ qrCode: response.data.url });
     } else {
       res.status(500).json({
         error: "QR Code não retornado pela Z-API",
@@ -63,7 +58,7 @@ app.get("/api/qr", async (req, res) => {
       });
     }
   } catch (err) {
-    console.error("❌ Erro /api/qr:", err.response?.data || err.message);
+    console.error("❌ Erro na rota /api/qr:", err.response?.data || err.message);
     res.status(500).json({
       error: "Erro ao gerar QR Code",
       details: err.response?.data || err.message
@@ -75,55 +70,16 @@ app.get("/api/qr", async (req, res) => {
 app.post("/api/send-message", async (req, res) => {
   try {
     const { phone, message } = req.body;
-
-    console.log("📨 Enviando mensagem para:", phone);
-
     const response = await axios.post(
       `${ZAPI.baseUrl()}/send-text`,
       { phone, message },
       { headers: { "Client-Token": ZAPI.clientToken } }
     );
-
     res.json(response.data);
   } catch (err) {
-    console.error("❌ Erro /api/send-message:", err.response?.data || err.message);
     res.status(500).json({
       error: err.message,
       details: err.response?.data || null
-    });
-  }
-});
-
-// 🔴 Desconectar sessão
-app.post("/api/disconnect", async (req, res) => {
-  try {
-    const response = await axios.post(
-      `${ZAPI.baseUrl()}/disconnect`,
-      {},
-      { headers: { "Client-Token": ZAPI.clientToken } }
-    );
-    res.json(response.data);
-  } catch (err) {
-    res.status(500).json({
-      error: "Erro ao desconectar",
-      details: err.response?.data || err.message
-    });
-  }
-});
-
-// 🔄 Reiniciar instância
-app.post("/api/restart", async (req, res) => {
-  try {
-    const response = await axios.post(
-      `${ZAPI.baseUrl()}/restart`,
-      {},
-      { headers: { "Client-Token": ZAPI.clientToken } }
-    );
-    res.json(response.data);
-  } catch (err) {
-    res.status(500).json({
-      error: "Erro ao reiniciar instância",
-      details: err.response?.data || err.message
     });
   }
 });
