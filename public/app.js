@@ -1,9 +1,9 @@
 // ============================
-// 📱 Conectar e mostrar QR Code
+// 📱 Conectar e mostrar QR Code na tela
 // ============================
 async function connectWhatsapp() {
   try {
-    const res = await fetch("/api/qr"); // 🔥 corrigido: rota correta do server.js
+    const res = await fetch("/api/qr"); // corrigido
     const data = await res.json();
 
     if (data.qrCode) {
@@ -14,10 +14,12 @@ async function connectWhatsapp() {
     } else {
       document.getElementById("qrContainer").textContent =
         "Não foi possível gerar o QR Code.";
+      console.error("Resposta inesperada:", data);
     }
   } catch (err) {
     document.getElementById("qrContainer").textContent =
       "Erro ao conectar ao servidor.";
+    console.error("Erro em connectWhatsapp:", err);
   }
 }
 
@@ -28,15 +30,21 @@ async function sendMessage() {
   const phone = document.getElementById("phone").value;
   const message = document.getElementById("message").value;
 
-  const res = await fetch("/api/send-message", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phone, message })
-  });
+  try {
+    const res = await fetch("/api/send-message", { // corrigido
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, message }),
+    });
 
-  const data = await res.json();
-  document.getElementById("serverResponse").textContent =
-    JSON.stringify(data, null, 2);
+    const data = await res.json();
+    document.getElementById("serverResponse").textContent =
+      JSON.stringify(data, null, 2);
+  } catch (err) {
+    document.getElementById("serverResponse").textContent =
+      "Erro ao enviar mensagem.";
+    console.error("Erro em sendMessage:", err);
+  }
 }
 
 // ============================
