@@ -18,7 +18,13 @@ document.getElementById("generateQrBtn")?.addEventListener("click", async () => 
     }
 
     if (data.qrCode) {
-      qrImage.src = data.qrCode; // pode ser URL ou base64
+      // Decide se é link ou base64 cru
+      if (data.qrCode.startsWith("http")) {
+        qrImage.src = data.qrCode;
+      } else {
+        qrImage.src = `data:image/png;base64,${data.qrCode}`;
+      }
+
       qrImage.style.display = "block";
       qrStatus.innerText = "QR Code gerado com sucesso!";
       qrStatus.style.color = "limegreen";

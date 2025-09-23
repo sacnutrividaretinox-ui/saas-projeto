@@ -40,7 +40,7 @@ app.get("/api/status", (req, res) => {
   res.json({ status: "ok", message: "Micro SaaS rodando 🚀" });
 });
 
-// QR Code (detecta url ou base64)
+// QR Code
 app.get("/api/qr", async (req, res) => {
   try {
     const response = await axios.get(`${ZAPI.baseUrl()}/qr-code/image`, {
@@ -48,18 +48,14 @@ app.get("/api/qr", async (req, res) => {
       timeout: 10000
     });
 
-    // Log para debug
-    console.log("🔍 Resposta Z-API /qr-code/image:", response.data);
+    console.log("🔍 Resposta Z-API:", response.data);
 
-    // Detectar campo correto
-    const qr =
-      response.data?.url ||
-      response.data?.qrCode ||
-      (response.data?.value ? `data:image/png;base64,${response.data.value}` : null) ||
-      (response.data?.base64 ? `data:image/png;base64,${response.data.base64}` : null);
-
-    if (qr) {
-      res.json({ qrCode: qr });
+    if (response.data?.value) {
+      // Base64 cru
+      res.json({ qrCode: response.data.value });
+    } else if (response.data?.url) {
+      // URL pronta
+      res.json({ qrCode: response.data.url });
     } else {
       res.status(500).json({
         error: "QR Code não retornado pela Z-API",
@@ -67,7 +63,7 @@ app.get("/api/qr", async (req, res) => {
       });
     }
   } catch (err) {
-    console.error("❌ Erro QR:", err.response?.data || err.message);
+    console.error("❌ Erro /api/qr:", err.response?.data || err.message);
     res.status(500).json({
       error: "Erro ao gerar QR Code",
       details: err.response?.data || err.message
@@ -79,13 +75,18 @@ app.get("/api/qr", async (req, res) => {
 app.post("/api/send-message", async (req, res) => {
   try {
     const { phone, message } = req.body;
+
+    console.log("📨 Enviando mensagem para:", phone);
+
     const response = await axios.post(
       `${ZAPI.baseUrl()}/send-text`,
       { phone, message },
       { headers: { "Client-Token": ZAPI.clientToken } }
     );
+
     res.json(response.data);
   } catch (err) {
+    console.error("❌ Erro /api/send-message:", err.response?.data || err.message);
     res.status(500).json({
       error: err.message,
       details: err.response?.data || null
@@ -103,7 +104,10 @@ app.post("/api/disconnect", async (req, res) => {
     );
     res.json(response.data);
   } catch (err) {
-    res.status(500).json({ error: "Erro ao desconectar", details: err.response?.data || err.message });
+    res.status(500).json({
+      error: "Erro ao desconectar",
+      details: err.response?.data || err.message
+    });
   }
 });
 
@@ -117,7 +121,10 @@ app.post("/api/restart", async (req, res) => {
     );
     res.json(response.data);
   } catch (err) {
-    res.status(500).json({ error: "Erro ao reiniciar instância", details: err.response?.data || err.message });
+    res.status(500).json({
+      error: "Erro ao reiniciar instância",
+      details: err.response?.data || err.message
+    });
   }
 });
 
