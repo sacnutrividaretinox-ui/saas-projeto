@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 // ============================
-// 🔑 Credenciais da Z-API (via Railway → Variables)
+// 🔑 Credenciais Z-API (Railway → Variables)
 // ============================
 const ZAPI = {
   instanceId: process.env.ZAPI_INSTANCE_ID || "SEU_INSTANCE_ID",
@@ -19,14 +19,8 @@ const ZAPI = {
   }
 };
 
-// Log inicial para conferir se variáveis estão carregadas
-console.log("🔑 Variáveis carregadas:");
-console.log("ZAPI_INSTANCE_ID:", ZAPI.instanceId);
-console.log("ZAPI_TOKEN:", ZAPI.token);
-console.log("ZAPI_CLIENT_TOKEN:", ZAPI.clientToken);
-
 // ============================
-// 🚀 Servir Front-End (index.html, styles.css, app.js)
+// 🚀 Servir Front-End
 // ============================
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -46,15 +40,13 @@ app.get("/api/status", (req, res) => {
 // QR Code
 app.get("/api/qr", async (req, res) => {
   try {
-    console.log("➡️ Requisição QR Code iniciada...");
-    console.log("➡️ URL chamada:", `${ZAPI.baseUrl()}/qr-code/image`);
+    console.log("📡 Requisição QR Code iniciada...");
+    console.log("URL chamada:", `${ZAPI.baseUrl()}/qr-code`);
 
-    const response = await axios.get(`${ZAPI.baseUrl()}/qr-code/image`, {
+    const response = await axios.get(`${ZAPI.baseUrl()}/qr-code`, {
       headers: { "Client-Token": ZAPI.clientToken },
       timeout: 10000
     });
-
-    console.log("✅ Resposta Z-API (QR):", response.data);
 
     if (response.data?.value) {
       res.json({ qrCode: response.data.value });
@@ -78,17 +70,12 @@ app.post("/api/send-message", async (req, res) => {
   try {
     const { phone, message } = req.body;
 
-    console.log("➡️ Enviando mensagem...");
-    console.log("➡️ URL chamada:", `${ZAPI.baseUrl()}/send-text`);
-    console.log("➡️ Payload:", { phone, message });
-
     const response = await axios.post(
       `${ZAPI.baseUrl()}/send-text`,
       { phone, message },
       { headers: { "Client-Token": ZAPI.clientToken } }
     );
 
-    console.log("✅ Resposta Z-API (Send):", response.data);
     res.json(response.data);
   } catch (err) {
     console.error("❌ Erro na rota /api/send-message:", err.response?.data || err.message);
@@ -105,4 +92,7 @@ app.post("/api/send-message", async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  console.log(`🔑 Instance ID: ${ZAPI.instanceId}`);
+  console.log(`🔑 Token: ${ZAPI.token}`);
+  console.log(`🔑 Client Token: ${ZAPI.clientToken}`);
 });
