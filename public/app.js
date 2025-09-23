@@ -1,52 +1,53 @@
-// ... (todo o código anterior já entregue continua igual)
+// QR CODE (MANTIDO IGUAL AO ORIGINAL)
+document.getElementById("generateQrBtn")?.addEventListener("click", async () => {
+  const qrImage = document.getElementById("qrImage");
+  const qrStatus = document.getElementById("qrStatus");
 
-// ---------- QR CODE ----------
-generateQrBtn?.addEventListener('click', async ()=>{
-  qrSpin.hidden = false;
-  qrImage.hidden = true;
-  qrStatus.textContent = 'Gerando QR Code...';
-  try{
-    await sleep(1500);
-    const res = await fetch('/api/qr');
+  qrStatus.innerText = "Gerando QR Code...";
+  qrStatus.style.color = "#00bcd4";
+  qrImage.style.display = "none";
+
+  try {
+    const res = await fetch("/api/qr");
     const data = await res.json();
-    if(data?.qrCode){
-      qrImage.src = `data:image/png;base64,${data.qrCode}`;
-      qrImage.hidden = false;
-      qrStatus.textContent = 'QR Code pronto! Escaneie no WhatsApp.';
-      log('QR code gerado com sucesso', 'ok');
-    }else{
-      throw new Error(data?.error || 'QR não retornado');
+
+    if (data.error) {
+      qrStatus.innerText = `Erro: ${data.error}`;
+      qrStatus.style.color = "red";
+      return;
     }
-  }catch(err){
-    qrStatus.textContent = 'Erro: ' + err.message;
-    log('Erro ao gerar QR: ' + err.message, 'err', err);
-  }finally{
-    qrSpin.hidden = true;
+
+    qrImage.src = `data:image/png;base64,${data.qrCode}`;
+    qrImage.style.display = "block";
+    qrStatus.innerText = "QR Code gerado com sucesso!";
+    qrStatus.style.color = "limegreen";
+
+  } catch (err) {
+    qrStatus.innerText = `Erro inesperado: ${err.message}`;
+    qrStatus.style.color = "red";
   }
 });
 
 // ---------- DISCONNECT ----------
-$('#disconnectBtn')?.addEventListener('click', async ()=>{
+document.getElementById("disconnectBtn")?.addEventListener("click", async () => {
   try {
-    const res = await fetch('/api/disconnect', { method:'POST' });
+    const res = await fetch("/api/disconnect", { method: "POST" });
     const data = await res.json();
-    log('Sessão desconectada.', 'ok', data);
-    qrStatus.textContent = 'Sessão desconectada. Gere novo QR.';
-    qrImage.hidden = true;
-  } catch(err) {
-    log('Erro ao desconectar: ' + err.message, 'err');
+    alert("Sessão desconectada! Agora gere um novo QR.");
+    console.log(data);
+  } catch (err) {
+    alert("Erro ao desconectar: " + err.message);
   }
 });
 
 // ---------- RESTART ----------
-$('#restartBtn')?.addEventListener('click', async ()=>{
+document.getElementById("restartBtn")?.addEventListener("click", async () => {
   try {
-    const res = await fetch('/api/restart', { method:'POST' });
+    const res = await fetch("/api/restart", { method: "POST" });
     const data = await res.json();
-    log('Instância reiniciada.', 'ok', data);
-    qrStatus.textContent = 'Instância reiniciada. Gere novo QR.';
-    qrImage.hidden = true;
-  } catch(err) {
-    log('Erro ao reiniciar: ' + err.message, 'err');
+    alert("Instância reiniciada! Agora gere um novo QR.");
+    console.log(data);
+  } catch (err) {
+    alert("Erro ao reiniciar: " + err.message);
   }
 });

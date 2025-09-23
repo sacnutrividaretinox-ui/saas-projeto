@@ -40,7 +40,7 @@ app.get("/api/status", (req, res) => {
   res.json({ status: "ok", message: "Micro SaaS rodando 🚀" });
 });
 
-// QR Code
+// QR Code (NÃO ALTERADO)
 app.get("/api/qr", async (req, res) => {
   try {
     const response = await axios.get(`${ZAPI.baseUrl()}/qr-code/image`, {
@@ -82,7 +82,7 @@ app.post("/api/send-message", async (req, res) => {
   }
 });
 
-// Desconectar sessão
+// 🔴 Desconectar sessão
 app.post("/api/disconnect", async (req, res) => {
   try {
     const response = await axios.post(
@@ -96,7 +96,7 @@ app.post("/api/disconnect", async (req, res) => {
   }
 });
 
-// Reiniciar instância
+// 🔄 Reiniciar instância
 app.post("/api/restart", async (req, res) => {
   try {
     const response = await axios.post(
