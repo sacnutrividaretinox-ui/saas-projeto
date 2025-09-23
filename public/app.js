@@ -1,4 +1,3 @@
-// QR CODE
 document.getElementById("generateQrBtn")?.addEventListener("click", async () => {
   const qrImage = document.getElementById("qrImage");
   const qrStatus = document.getElementById("qrStatus");
@@ -6,6 +5,7 @@ document.getElementById("generateQrBtn")?.addEventListener("click", async () => 
   qrStatus.innerText = "Gerando QR Code...";
   qrStatus.style.color = "#00bcd4";
   qrImage.style.display = "none";
+  qrImage.removeAttribute("src");
 
   try {
     const res = await fetch("/api/qr");
@@ -18,7 +18,7 @@ document.getElementById("generateQrBtn")?.addEventListener("click", async () => 
     }
 
     if (data.qrCode) {
-      // Decide se é link ou base64 cru
+      // Decide se é URL ou base64 cru
       if (data.qrCode.startsWith("http")) {
         qrImage.src = data.qrCode;
       } else {
@@ -26,8 +26,10 @@ document.getElementById("generateQrBtn")?.addEventListener("click", async () => 
       }
 
       qrImage.style.display = "block";
-      qrStatus.innerText = "QR Code gerado com sucesso!";
+      qrStatus.innerText = "QR Code carregado!";
       qrStatus.style.color = "limegreen";
+
+      console.log("✅ QR aplicado no src:", qrImage.src.substring(0, 100) + "...");
     } else {
       qrStatus.innerText = "QR Code não retornado pela API.";
       qrStatus.style.color = "red";
@@ -35,29 +37,5 @@ document.getElementById("generateQrBtn")?.addEventListener("click", async () => 
   } catch (err) {
     qrStatus.innerText = `Erro inesperado: ${err.message}`;
     qrStatus.style.color = "red";
-  }
-});
-
-// ---------- DISCONNECT ----------
-document.getElementById("disconnectBtn")?.addEventListener("click", async () => {
-  try {
-    const res = await fetch("/api/disconnect", { method: "POST" });
-    const data = await res.json();
-    alert("Sessão desconectada! Agora gere um novo QR.");
-    console.log(data);
-  } catch (err) {
-    alert("Erro ao desconectar: " + err.message);
-  }
-});
-
-// ---------- RESTART ----------
-document.getElementById("restartBtn")?.addEventListener("click", async () => {
-  try {
-    const res = await fetch("/api/restart", { method: "POST" });
-    const data = await res.json();
-    alert("Instância reiniciada! Agora gere um novo QR.");
-    console.log(data);
-  } catch (err) {
-    alert("Erro ao reiniciar: " + err.message);
   }
 });
