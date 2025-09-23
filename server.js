@@ -1,5 +1,5 @@
 // ============================
-// 📦 Dependências
+// 📌 Dependências
 // ============================
 const express = require("express");
 const cors = require("cors");
@@ -11,23 +11,19 @@ app.use(cors());
 app.use(express.json());
 
 // ============================
-// 🔑 Credenciais Z-API (Railway → Variables)
+// 🔑 Credenciais da Z-API (Railway → Variables)
 // ============================
 const ZAPI = {
   instanceId: process.env.ZAPI_INSTANCE_ID || "SEU_INSTANCE_ID",
   token: process.env.ZAPI_TOKEN || "SEU_TOKEN",
+  clientToken: process.env.ZAPI_CLIENT_TOKEN || "SEU_CLIENT_TOKEN",
   baseUrl() {
     return `https://api.z-api.io/instances/${this.instanceId}/token/${this.token}`;
-  },
-  headers() {
-    return {
-      Authorization: `Bearer ${this.token}`, // ✅ Corrigido: autenticação correta
-    };
-  },
+  }
 };
 
 // ============================
-// 🚀 Servir Front-End
+// 🚀 Servir Front-End (pasta public)
 // ============================
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -47,12 +43,16 @@ app.get("/api/status", (req, res) => {
 // QR Code
 app.get("/api/qr", async (req, res) => {
   try {
-    console.log("📡 Requisição QR Code iniciada...");
-    const url = `${ZAPI.baseUrl()}/qr-code/image`;
+    console.log("🔑 Credenciais carregadas:");
+    console.log("Instance ID:", ZAPI.instanceId);
+    console.log("Token:", ZAPI.token);
+    console.log("Client Token:", ZAPI.clientToken);
 
-    const response = await axios.get(url, {
-      headers: ZAPI.headers(),
-      timeout: 10000,
+    console.log("🔗 URL chamada:", `${ZAPI.baseUrl()}/qr-code/image`);
+
+    const response = await axios.get(`${ZAPI.baseUrl()}/qr-code/image`, {
+      headers: { "Client-Token": ZAPI.clientToken },
+      timeout: 10000
     });
 
     if (response.data?.value) {
@@ -60,14 +60,14 @@ app.get("/api/qr", async (req, res) => {
     } else {
       res.status(500).json({
         error: "QR Code não retornado pela Z-API",
-        raw: response.data,
+        raw: response.data
       });
     }
   } catch (err) {
     console.error("❌ Erro na rota /api/qr:", err.response?.data || err.message);
     res.status(500).json({
       error: "Erro ao gerar QR Code",
-      details: err.response?.data || err.message,
+      details: err.response?.data || err.message
     });
   }
 });
@@ -77,35 +77,28 @@ app.post("/api/send-message", async (req, res) => {
   try {
     const { phone, message } = req.body;
 
-    const url = `${ZAPI.baseUrl()}/send-text`;
+    console.log("📨 Enviando mensagem para:", phone);
 
     const response = await axios.post(
-      url,
+      `${ZAPI.baseUrl()}/send-text`,
       { phone, message },
-      { headers: ZAPI.headers() }
+      { headers: { "Client-Token": ZAPI.clientToken } }
     );
 
     res.json(response.data);
   } catch (err) {
-    console.error(
-      "❌ Erro na rota /api/send-message:",
-      err.response?.data || err.message
-    );
+    console.error("❌ Erro na rota /api/send-message:", err.response?.data || err.message);
     res.status(500).json({
       error: err.message,
-      details: err.response?.data || null,
+      details: err.response?.data || null
     });
   }
 });
 
 // ============================
-// 🚀 Inicializar Servidor
+// 🚀 Inicializar servidor
 // ============================
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log("=================================");
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
-  console.log(`📌 Instance ID: ${ZAPI.instanceId}`);
-  console.log(`📌 Token: ${ZAPI.token}`);
-  console.log("=================================");
 });
