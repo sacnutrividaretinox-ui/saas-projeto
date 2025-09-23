@@ -43,13 +43,6 @@ app.get("/api/status", (req, res) => {
 // QR Code
 app.get("/api/qr", async (req, res) => {
   try {
-    console.log("🔑 Credenciais carregadas:");
-    console.log("Instance ID:", ZAPI.instanceId);
-    console.log("Token:", ZAPI.token);
-    console.log("Client Token:", ZAPI.clientToken);
-
-    console.log("🔗 URL chamada:", `${ZAPI.baseUrl()}/qr-code/image`);
-
     const response = await axios.get(`${ZAPI.baseUrl()}/qr-code/image`, {
       headers: { "Client-Token": ZAPI.clientToken },
       timeout: 10000
@@ -64,7 +57,6 @@ app.get("/api/qr", async (req, res) => {
       });
     }
   } catch (err) {
-    console.error("❌ Erro na rota /api/qr:", err.response?.data || err.message);
     res.status(500).json({
       error: "Erro ao gerar QR Code",
       details: err.response?.data || err.message
@@ -76,22 +68,45 @@ app.get("/api/qr", async (req, res) => {
 app.post("/api/send-message", async (req, res) => {
   try {
     const { phone, message } = req.body;
-
-    console.log("📨 Enviando mensagem para:", phone);
-
     const response = await axios.post(
       `${ZAPI.baseUrl()}/send-text`,
       { phone, message },
       { headers: { "Client-Token": ZAPI.clientToken } }
     );
-
     res.json(response.data);
   } catch (err) {
-    console.error("❌ Erro na rota /api/send-message:", err.response?.data || err.message);
     res.status(500).json({
       error: err.message,
       details: err.response?.data || null
     });
+  }
+});
+
+// Desconectar sessão
+app.post("/api/disconnect", async (req, res) => {
+  try {
+    const response = await axios.post(
+      `${ZAPI.baseUrl()}/disconnect`,
+      {},
+      { headers: { "Client-Token": ZAPI.clientToken } }
+    );
+    res.json(response.data);
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao desconectar", details: err.response?.data || err.message });
+  }
+});
+
+// Reiniciar instância
+app.post("/api/restart", async (req, res) => {
+  try {
+    const response = await axios.post(
+      `${ZAPI.baseUrl()}/restart`,
+      {},
+      { headers: { "Client-Token": ZAPI.clientToken } }
+    );
+    res.json(response.data);
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao reiniciar instância", details: err.response?.data || err.message });
   }
 });
 
