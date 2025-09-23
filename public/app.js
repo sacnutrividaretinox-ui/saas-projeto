@@ -1,7 +1,9 @@
-// Conectar e mostrar QR Code na tela
+// ============================
+// 📱 Conectar e mostrar QR Code
+// ============================
 async function connectWhatsapp() {
   try {
-    const res = await fetch("/api/qr"); // 🔥 corrigido: agora vai na rota certa
+    const res = await fetch("/api/qr"); // 🔥 corrigido: rota correta do server.js
     const data = await res.json();
 
     if (data.qrCode) {
@@ -19,12 +21,14 @@ async function connectWhatsapp() {
   }
 }
 
-// Enviar mensagem
+// ============================
+// ✉️ Enviar mensagem
+// ============================
 async function sendMessage() {
   const phone = document.getElementById("phone").value;
   const message = document.getElementById("message").value;
 
-  const res = await fetch("/api/send-message", { // 🔥 corrigido: rota certa
+  const res = await fetch("/api/send-message", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phone, message })
@@ -35,12 +39,16 @@ async function sendMessage() {
     JSON.stringify(data, null, 2);
 }
 
-// Atualizar prévia da mensagem
+// ============================
+// 👀 Atualizar prévia da mensagem
+// ============================
 document.getElementById("message").addEventListener("input", (e) => {
   document.getElementById("previewText").textContent = e.target.value;
 });
 
-// Upload CSV
+// ============================
+// 📂 Upload CSV
+// ============================
 document.getElementById("fileInput").addEventListener("change", (event) => {
   const file = event.target.files[0];
   const reader = new FileReader();
