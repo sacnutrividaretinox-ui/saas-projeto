@@ -3,60 +3,146 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WhatsApp SaaS</title>
+  <title>WhatsApp Micro-SaaS</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="container">
-    <aside>
-      <h2>📲 WhatsApp SaaS</h2>
+  <header class="topbar">
+    <button id="menuToggle" aria-label="Abrir menu" class="icon-btn">☰</button>
+    <h1>📲 WhatsApp Micro-SaaS</h1>
+    <div id="connStatus" class="badge badge-gray">Checando...</div>
+  </header>
+
+  <div class="layout">
+    <aside id="sidebar">
       <nav>
-        <ul>
-          <li><a href="#contatos">Contatos</a></li>
-          <li><a href="#mensagem">Mensagem</a></li>
-          <li><a href="#preview">Prévia</a></li>
-          <li><a href="#resposta">Resposta</a></li>
-          <li><a href="#qrcode">Conectar WhatsApp</a></li>
-        </ul>
+        <a href="#status" class="nav-link">Status</a>
+        <a href="#contatos" class="nav-link">Contatos</a>
+        <a href="#mensagem" class="nav-link">Mensagem</a>
+        <a href="#templates" class="nav-link">Templates</a>
+        <a href="#preview" class="nav-link">Prévia</a>
+        <a href="#resposta" class="nav-link">Logs / Histórico</a>
+        <a href="#qrcode" class="nav-link">Conectar WhatsApp</a>
       </nav>
     </aside>
 
     <main>
-      <!-- Upload CSV -->
-      <section id="contatos">
-        <h3>Upload de Contatos (CSV)</h3>
-        <input type="file" id="fileInput" />
-        <pre id="csvOutput"></pre>
+      <!-- STATUS -->
+      <section id="status" class="card">
+        <h2>Status da Conexão</h2>
+        <div class="status-row">
+          <div id="statusText">Carregando status…</div>
+          <button id="refreshStatus" class="btn">Atualizar</button>
+        </div>
       </section>
 
-      <!-- Enviar Mensagem -->
-      <section id="mensagem">
-        <h3>Enviar Mensagem</h3>
-        <input type="text" id="phone" placeholder="Número com DDD" />
-        <textarea id="message" placeholder="Digite sua mensagem..."></textarea>
-        <button onclick="sendMessage()">Enviar</button>
+      <!-- CONTATOS -->
+      <section id="contatos" class="card">
+        <h2>Upload de Contatos (CSV)</h2>
+        <div class="row">
+          <input type="file" id="fileInput" accept=".csv" />
+          <button id="clearContacts" class="btn btn-ghost">Limpar</button>
+        </div>
+        <div class="table-wrap">
+          <table id="contactsTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Telefone</th>
+                <th>Nome</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="row">
+          <label for="bulkDelay">Delay entre envios (ms)</label>
+          <input id="bulkDelay" type="number" min="0" step="250" value="1500" />
+        </div>
+        <div class="row">
+          <button id="sendBulk" class="btn">Enviar em Massa</button>
+        </div>
       </section>
 
-      <!-- Prévia -->
-      <section id="preview">
-        <h3>Prévia da Mensagem</h3>
-        <p id="previewText">Sua mensagem aparecerá aqui...</p>
+      <!-- MENSAGEM -->
+      <section id="mensagem" class="card">
+        <h2>Enviar Mensagem</h2>
+        <div class="grid-2">
+          <div>
+            <label for="phone">Número (com DDI/DDD)</label>
+            <input type="tel" id="phone" placeholder="Ex: 5591999999999" />
+          </div>
+          <div>
+            <label for="singleDelay">Delay (ms) antes de enviar</label>
+            <input type="number" id="singleDelay" value="500" min="0" step="100" />
+          </div>
+        </div>
+        <label for="message">Mensagem</label>
+        <textarea id="message" rows="5" placeholder="Digite sua mensagem…"></textarea>
+        <div class="row">
+          <button id="sendBtn" class="btn">Enviar</button>
+          <button id="clearMsg" class="btn btn-ghost">Limpar</button>
+        </div>
       </section>
 
-      <!-- Resposta -->
-      <section id="resposta">
-        <h3>Resposta da API</h3>
-        <pre id="serverResponse"></pre>
+      <!-- TEMPLATES -->
+      <section id="templates" class="card">
+        <h2>Templates</h2>
+        <div class="grid-2">
+          <div>
+            <label for="tplName">Nome</label>
+            <input id="tplName" placeholder="Ex: Boas-vindas" />
+          </div>
+          <div class="row end">
+            <button id="saveTpl" class="btn">Salvar Template</button>
+          </div>
+        </div>
+        <label for="tplSelect">Carregar</label>
+        <div class="row">
+          <select id="tplSelect"></select>
+          <button id="deleteTpl" class="btn btn-danger">Excluir</button>
+          <button id="applyTpl" class="btn">Aplicar</button>
+        </div>
       </section>
 
-      <!-- QR Code -->
-      <section id="qrcode">
-        <h3>Conectar WhatsApp</h3>
-        <button onclick="connectWhatsapp()">Gerar QR Code</button>
-        <div id="qrContainer"></div>
+      <!-- PRÉVIA -->
+      <section id="preview" class="card">
+        <h2>Prévia da Mensagem</h2>
+        <div id="previewText" class="preview">Sua mensagem aparecerá aqui…</div>
+      </section>
+
+      <!-- LOGS / HISTÓRICO -->
+      <section id="resposta" class="card">
+        <h2>Logs / Histórico</h2>
+        <div id="history" class="history"></div>
+        <pre id="serverResponse" class="terminal"></pre>
+        <div class="row">
+          <button id="clearHistory" class="btn btn-ghost">Limpar histórico</button>
+          <button id="exportHistory" class="btn">Exportar JSON</button>
+        </div>
+      </section>
+
+      <!-- QR CODE -->
+      <section id="qrcode" class="card">
+        <h2>Conectar WhatsApp</h2>
+        <div class="row">
+          <button id="generateQrBtn" class="btn">
+            <span class="spinner" id="qrSpin" hidden></span>
+            Gerar QR Code
+          </button>
+        </div>
+        <div id="qrStatus" class="muted">Aguardando ação…</div>
+        <div id="qrContainer">
+          <img id="qrImage" alt="QR Code" hidden />
+        </div>
       </section>
     </main>
   </div>
+
+  <footer class="foot">
+    Feito para disparos controlados. Respeite o opt-in dos contatos.
+  </footer>
 
   <script src="app.js"></script>
 </body>
