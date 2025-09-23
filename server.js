@@ -40,13 +40,14 @@ app.get("/api/status", (req, res) => {
 // QR Code
 app.get("/api/qr", async (req, res) => {
   try {
-    const response = await axios.get(`${ZAPI.baseUrl()}/qr-code/image`, {
+    // endpoint correto segundo a documentação
+    const response = await axios.get(`${ZAPI.baseUrl()}/qrcode`, {
       headers: { "Client-Token": ZAPI.clientToken },
       timeout: 10000
     });
 
-    if (response.data?.value) {
-      res.json({ qrCode: response.data.value });
+    if (response.data?.qr_code_base64) {
+      res.json({ qrCode: `data:image/png;base64,${response.data.qr_code_base64}` });
     } else {
       res.status(500).json({
         error: "QR Code não retornado pela Z-API",
