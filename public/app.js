@@ -1,4 +1,4 @@
-// QR CODE (mantido e corrigido para fallback)
+// QR CODE
 document.getElementById("generateQrBtn")?.addEventListener("click", async () => {
   const qrImage = document.getElementById("qrImage");
   const qrStatus = document.getElementById("qrStatus");
@@ -18,7 +18,7 @@ document.getElementById("generateQrBtn")?.addEventListener("click", async () => 
     }
 
     if (data.qrCode) {
-      qrImage.src = `data:image/png;base64,${data.qrCode}`;
+      qrImage.src = data.qrCode; // já vem pronto do back
       qrImage.style.display = "block";
       qrStatus.innerText = "QR Code gerado com sucesso!";
       qrStatus.style.color = "limegreen";
