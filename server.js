@@ -8,18 +8,19 @@ app.use(cors());
 app.use(express.json());
 
 // ============================
-// 🔑 Credenciais da Z-API (via Railway → Variables)
+// 🔑 Credenciais da Z-API
 // ============================
 const ZAPI = {
   instanceId: process.env.ZAPI_INSTANCE_ID || "SEU_INSTANCE_ID",
-  token: process.env.ZAPI_TOKEN || "SEU_TOKEN",
+  token: process.env.ZAPI_TOKEN || "SEU_TOKEN", // usado como Bearer
+  clientToken: process.env.ZAPI_CLIENT_TOKEN || "SEU_CLIENT_TOKEN", // usado para enviar mensagens
   baseUrl() {
     return `https://api.z-api.io/instances/${this.instanceId}/token/${this.token}`;
   }
 };
 
 // ============================
-// 🚀 Servir Front-End (index.html, styles.css, app.js)
+// 🚀 Servir Front-End
 // ============================
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -36,7 +37,7 @@ app.get("/api/status", (req, res) => {
   res.json({ status: "ok", message: "Micro SaaS rodando 🚀" });
 });
 
-// QR Code
+// QR Code (Bearer Token)
 app.get("/api/qr", async (req, res) => {
   try {
     console.log("📡 Requisição QR Code iniciada...");
@@ -65,7 +66,7 @@ app.get("/api/qr", async (req, res) => {
   }
 });
 
-// Enviar mensagem
+// Enviar mensagem (Client Token)
 app.post("/api/send-message", async (req, res) => {
   try {
     const { phone, message } = req.body;
@@ -73,7 +74,7 @@ app.post("/api/send-message", async (req, res) => {
     const response = await axios.post(
       `${ZAPI.baseUrl()}/send-text`,
       { phone, message },
-      { headers: { Authorization: `Bearer ${ZAPI.token}` } }
+      { headers: { "Client-Token": ZAPI.clientToken } }
     );
 
     res.json(response.data);
@@ -96,5 +97,6 @@ app.listen(PORT, () => {
   console.log("🔑 Credenciais carregadas:");
   console.log("Instance ID:", ZAPI.instanceId);
   console.log("Token:", ZAPI.token);
+  console.log("Client Token:", ZAPI.clientToken);
   console.log("================================");
 });
