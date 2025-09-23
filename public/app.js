@@ -18,7 +18,7 @@ document.getElementById("generateQrBtn")?.addEventListener("click", async () => 
     }
 
     if (data.qrCode) {
-      qrImage.src = data.qrCode; // já vem pronto do back
+      qrImage.src = data.qrCode; // pode ser URL ou base64
       qrImage.style.display = "block";
       qrStatus.innerText = "QR Code gerado com sucesso!";
       qrStatus.style.color = "limegreen";
@@ -26,7 +26,6 @@ document.getElementById("generateQrBtn")?.addEventListener("click", async () => 
       qrStatus.innerText = "QR Code não retornado pela API.";
       qrStatus.style.color = "red";
     }
-
   } catch (err) {
     qrStatus.innerText = `Erro inesperado: ${err.message}`;
     qrStatus.style.color = "red";
