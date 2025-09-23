@@ -27,7 +27,78 @@
     </aside>
 
     <main>
-      <!-- outras seções mantidas como estavam -->
+      <!-- Contatos -->
+      <section id="contatos" class="card">
+        <h2>Upload de Contatos (CSV)</h2>
+        <div class="row">
+          <input type="file" id="fileInput" accept=".csv" />
+          <button id="clearContacts" class="btn btn-danger">Limpar</button>
+        </div>
+        <label for="bulkDelay">Delay entre envios (ms)</label>
+        <input type="number" id="bulkDelay" value="1500" />
+        <button id="sendBulk" class="btn">Enviar em Massa</button>
+        <div class="table-wrap">
+          <table id="contactsTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Telefone</th>
+                <th>Nome</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Mensagem -->
+      <section id="mensagem" class="card">
+        <h2>Enviar Mensagem</h2>
+        <label for="phone">Número (com DDI/DDD)</label>
+        <input type="text" id="phone" placeholder="Ex: 5591999999999" />
+        <label for="singleDelay">Delay (ms) antes de enviar</label>
+        <input type="number" id="singleDelay" value="500" />
+        <label for="message">Mensagem</label>
+        <textarea id="message" rows="4"></textarea>
+        <div class="row">
+          <button id="sendBtn" class="btn">Enviar</button>
+          <button id="clearMsg" class="btn btn-danger">Limpar</button>
+        </div>
+      </section>
+
+      <!-- Templates -->
+      <section id="templates" class="card">
+        <h2>Templates</h2>
+        <label for="tplName">Nome</label>
+        <input type="text" id="tplName" placeholder="Ex: Boas-vindas" />
+        <div class="row">
+          <button id="saveTpl" class="btn">Salvar Template</button>
+        </div>
+        <label for="tplSelect">Carregar</label>
+        <select id="tplSelect"></select>
+        <div class="row">
+          <button id="deleteTpl" class="btn btn-danger">Excluir</button>
+          <button id="applyTpl" class="btn">Aplicar</button>
+        </div>
+      </section>
+
+      <!-- Prévia -->
+      <section id="preview" class="card">
+        <h2>Prévia da Mensagem</h2>
+        <div id="previewText" class="preview">Sua mensagem aparecerá aqui…</div>
+      </section>
+
+      <!-- Logs -->
+      <section id="resposta" class="card">
+        <h2>Logs / Histórico</h2>
+        <div class="history" id="history"></div>
+        <pre id="serverResponse" class="terminal"></pre>
+        <div class="row">
+          <button id="clearHistory" class="btn btn-danger">Limpar histórico</button>
+          <button id="exportHistory" class="btn">Exportar JSON</button>
+        </div>
+      </section>
 
       <!-- QR Code -->
       <section id="qrcode" class="card">

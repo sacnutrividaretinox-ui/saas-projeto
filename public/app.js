@@ -1,4 +1,4 @@
-// QR CODE (MANTIDO IGUAL AO ORIGINAL)
+// QR CODE (mantido e corrigido para fallback)
 document.getElementById("generateQrBtn")?.addEventListener("click", async () => {
   const qrImage = document.getElementById("qrImage");
   const qrStatus = document.getElementById("qrStatus");
@@ -17,10 +17,15 @@ document.getElementById("generateQrBtn")?.addEventListener("click", async () => 
       return;
     }
 
-    qrImage.src = `data:image/png;base64,${data.qrCode}`;
-    qrImage.style.display = "block";
-    qrStatus.innerText = "QR Code gerado com sucesso!";
-    qrStatus.style.color = "limegreen";
+    if (data.qrCode) {
+      qrImage.src = `data:image/png;base64,${data.qrCode}`;
+      qrImage.style.display = "block";
+      qrStatus.innerText = "QR Code gerado com sucesso!";
+      qrStatus.style.color = "limegreen";
+    } else {
+      qrStatus.innerText = "QR Code não retornado pela API.";
+      qrStatus.style.color = "red";
+    }
 
   } catch (err) {
     qrStatus.innerText = `Erro inesperado: ${err.message}`;
